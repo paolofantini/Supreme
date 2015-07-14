@@ -56,7 +56,7 @@ reduce_dtm_tfidf <- function(dtm, q = list(inf = 0.25, sup = 0.75), export = FAL
     # Output.
     discardedTerms <- colnames(dtm[, ((term_tfidf < thresh$inf) | (term_tfidf > thresh$sup))])
     write(discardedTerms, paste(dtm.out.dir, "/discardedTerms.txt", sep = ""))
-	  write(colnames(dtm.red), paste(dtm.out.dir, "/vocabulary.txt", sep = ""))
+    write(colnames(dtm.red), paste(dtm.out.dir, "/vocabulary.txt", sep = ""))
     save(res, file = paste(dtm.out.dir, "/dtm_", dtm.type, ".RData", sep = ""))
   }
 
