@@ -24,11 +24,12 @@ Full reference can be found in:
 
 You can install the latest development version from github with:
 
-    ``` r
-    install.packages("devtools")
-    devtools::install_github("paolofantini/Supreme")
-    ```
-    
+``` r
+install.packages("devtools")
+devtools::install_github("paolofantini/Supreme")
+
+```
+
 ## Input data
 
 ### Data frame of class dfciv
