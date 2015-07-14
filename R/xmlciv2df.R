@@ -67,24 +67,24 @@ xmlciv2df <- function(path) {
   # Extract the document attributes and build dataframe dfciv.
   dfciv <- lapply(xml.file, function(x) {
 
-	# Informations about the case decision.
-	tipoProv    <- x$.attrs["tipoprov"]
-	annoDec     <- x$.attrs["anno"]
+  # Informations about the case decision.
+  tipoProv    <- x$.attrs["tipoprov"]
+  annoDec     <- x$.attrs["anno"]
   numDec      <- x$.attrs["numdec"]
-	numSez      <- x$.attrs["nsz"]
+  numSez      <- x$.attrs["nsz"]
   testo       <- x$tes
   dispositivo <- x$dis
 
-	# Informations about the case filing.
+  # Informations about the case filing.
   annoNrgSic   <- x$sic$.attrs["anno_nrg"]
-	nrgSic       <- x$sic$.attrs["nrg"]
-	annoProvOrig <- x$sic$.attrs["anno_prov"]
+  nrgSic       <- x$sic$.attrs["nrg"]
+  annoProvOrig <- x$sic$.attrs["anno_prov"]
   numProvOrig  <- x$sic$.attrs["num_provv"]
-	autorita     <- x$sic$.attrs["autorita"]
-	localita     <- x$sic$.attrs["localita"]
-	materia      <- x$sic$.attrs["materia"]
+  autorita     <- x$sic$.attrs["autorita"]
+  localita     <- x$sic$.attrs["localita"]
+  materia      <- x$sic$.attrs["materia"]
 
-	data.frame(tipoProv, annoDec, numDec, numSez, testo, dispositivo, annoNrgSic, nrgSic, annoProvOrig, numProvOrig, autorita, localita, materia, stringsAsFactors = FALSE)
+  data.frame(tipoProv, annoDec, numDec, numSez, testo, dispositivo, annoNrgSic, nrgSic, annoProvOrig, numProvOrig, autorita, localita, materia, stringsAsFactors = FALSE)
   })
 
   dfciv <- as.data.frame(rbindlist(dfciv))  # rbindlist from pkg data.table
