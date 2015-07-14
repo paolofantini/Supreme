@@ -1,0 +1,33 @@
+#' @title
+#' Data frame dfciv
+#'
+#' @description
+#' A data frame with 15,485 rows and 15 variables relating to final decisions (sentences) in civil matters
+#' delivered by the Italian Supreme Court during the year 2013.
+#'
+#' @details
+#' Each row corresponds to a document and each column to a document attribute.
+#' Document attributes are:
+#' \describe{
+#'   \item{\code{Id_doc}}{ID document}
+#'   \item{\code{tipoProv}}{type of decision (D, I, O, S) - S stands for \emph{Sentenza} (final decision)}
+#'   \item{\code{annoDec}}{year of decision}
+#'   \item{\code{numDec}}{number of decision}
+#'   \item{\code{numSez}}{number of ISC section}
+#'   \item{\code{testo}}{text of decision}
+#'   \item{\code{dispositivo}}{summary of decision}
+#'   \item{\code{annoNrgSic}}{year of filing lawsuit}
+#'   \item{\code{nrgSic}}{number of filing lawsuit}
+#'   \item{\code{annoProvOrig}}{year of appealed decision}
+#'   \item{\code{numProvOrig}}{number of appealed decision}
+#'   \item{\code{autorita}}{authority of appealed decision}
+#'   \item{\code{localita}}{location of appealed decision}
+#'   \item{\code{materia}}{subject of appealed decision}
+#'   \item{\code{Idmateria}}{Id subject of appealed decision}
+#' }
+#'
+#' @note
+#' \code{Idmateria} document labels are contained in the separate vector \code{\link{classes}}.
+#'
+#' @name dfciv
+NULL
