@@ -31,20 +31,20 @@ dfciv2corpus <- function(dfciv, export = FALSE) {
   # Meta data list.
   metaData <- list(content           = "testo",    # default
                    heading           = "materia",  # default
-				           ID_doc            = "ID_doc",
+	           ID_doc            = "ID_doc",
                    TipoProvvedimento = "tipoProv",
                    AnnoDecisione     = "annoDec",
-				           NumeroDecisione   = "numDec",
-				           NumeroSezione     = "numSez",
-				           AnnoNrgSic        = "annoNrgSic",
-				           NrgSic            = "nrgSic",
-				           AnnoProvOriginale = "annoProvOrig",
-				           NumProvOriginale  = "numProvOrig",
-				           Autorita          = "autorita",
-				           Localita          = "localita",
-				           Materia           = "materia",
-				           Idmateria         = "Idmateria",
-				           Dispositivo       = "dispositivo")
+		   NumeroDecisione   = "numDec",
+		   NumeroSezione     = "numSez",
+		   AnnoNrgSic        = "annoNrgSic",
+		   NrgSic            = "nrgSic",
+		   AnnoProvOriginale = "annoProvOrig",
+	           NumProvOriginale  = "numProvOrig",
+		   Autorita          = "autorita",
+		   Localita          = "localita",
+		   Materia           = "materia",
+		   Idmateria         = "Idmateria",
+		   Dispositivo       = "dispositivo")
 
   # Ad-hoc reader.
   myReader <- readTabular(mapping = metaData)
