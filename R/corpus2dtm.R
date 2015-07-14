@@ -34,13 +34,13 @@ corpus2dtm <- function(corpus) {
   dtmCorpus <- corpus
   removePunctuation <- function(x) gsub("(['?\n<U+202F><U+2009>]|[[:punct:]]|[[:space:]]|[[:cntrl:]])+", " ", x)
   removeItalianStopWords <- function(x) removeWords(x, italianStopWords)
-  
+
   # List of tm transformations (bottom-up order).
   funs <- list(content_transformer(stripWhitespace),
                content_transformer(removeItalianStopWords),
                content_transformer(removeNumbers),
                content_transformer(removePunctuation),
-	       content_transformer(tolower))
+               content_transformer(tolower))
   dtmCorpus <- tm_map(dtmCorpus, FUN = tm_reduce, tmFuns = funs)
 
   # dtm: keep only terms with minimum length 3 and appearing at least in 2 documents.
