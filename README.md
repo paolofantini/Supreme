@@ -166,7 +166,7 @@ dtm <- corpus2dtm(corpus)
 
 - **tfidf:** selects suitable columns of *unlabeled* **dtm** by deleting terms whith [tf-idf](http://en.wikipedia.org/wiki/Tf-idf) score out of an user defined range. By default, this reduces the number of terms by half from 52,504 to **26,252**.
 
-- **lognet:** applies to *labeled* **dtm** the `lognet` method, a logistic classification method from package **glmnet**: **dtm** can be represented as a *labeled* document-term matrix by using the class labels **classes**, i.e. the labels assigned to cases when they come to the Supreme Court from lower courts. This dramatically reduces the vocabulary to **798** *useful* terms.
+- **lognet:** applies to *labeled* **dtm** the `lognet` method, a logistic classification method from package **glmnet**: **dtm** can be represented as a *labeled* document-term matrix by using the class labels **classes**, i.e. the labels assigned to cases when they come to the Supreme Court from lower courts. This dramatically reduces the vocabulary to **758** *useful* terms.
 
 You can obtain the reduced document-term matrices **dtm.tfidf** and **dtm.lognet** by running the following code:
 
