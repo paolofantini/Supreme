@@ -56,7 +56,7 @@ dfciv2corpus <- function(dfciv, export = FALSE) {
   if (export) {
     out.dir <- "data/corpus"
     if (!file.exists(out.dir))
-      dir.create(out.dir, recursive = FALSE)
+      dir.create(out.dir, recursive = TRUE)
     ndocs <- nrow(dfciv)
     writeCorpus(corpus, out.dir, filenames = paste(seq(1, ndocs), ".txt", sep = ""))
   }
