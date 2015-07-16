@@ -14,7 +14,7 @@
 #'   \item{\code{annoDec}}{year of decision}
 #'   \item{\code{numDec}}{number of decision}
 #'   \item{\code{numSez}}{number of ISC section}
-#'   \item{\code{testo}}{text of decision}
+#'   \item{\code{testo}}{content of the document body}
 #'   \item{\code{dispositivo}}{summary of decision}
 #'   \item{\code{annoNrgSic}}{year of filing lawsuit}
 #'   \item{\code{nrgSic}}{number of filing lawsuit}

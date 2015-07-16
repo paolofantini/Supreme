@@ -17,7 +17,8 @@ xmlciv2df(path)
 }
 \details{
 Each original document has a \strong{xml} tree structure starting at \code{snintegrale} top element
-and branching to \code{testo} and \code{dispositivo} leave elements, respectively containing the document text and the case decision.
+and branching to \code{testo} and \code{dispositivo} leave elements, respectively containing
+the content of the document body and the case decision.
 Document attributes are:
 \describe{
   \item{\code{tipoProv}}{type of decision (D, I, O, S) - S stands for *Sentenza* (final decision)}

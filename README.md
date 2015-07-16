@@ -48,7 +48,7 @@ A data frame with **15,485** rows and **15** variables relating to final decisio
 
 - *numSez*: number of ISC section
 
-- *testo*: **text** of decision
+- *testo*: content of the document body
 
 - *dispositivo*: summary of decision
 
