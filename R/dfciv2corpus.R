@@ -9,7 +9,7 @@
   #' @param dfciv a data frame of class \code{dfciv}.
   #' @param export logical, if \code{TRUE} exports the corpus to txt files. Default is \code{FALSE}.
   #'
-  #' @return a ISC \code{corpus} built from a \code{dfciv} data frame with user defined meta attributes (see \code{\link{xmlciv2df}} function).
+  #' @return a ISC \code{corpus} built from a \code{dfciv} data frame with user defined meta attributes (see \code{\link{xml2dfciv}} function).
   #'
   #' @export
   #'
@@ -31,7 +31,7 @@ dfciv2corpus <- function(dfciv, export = FALSE) {
   # Meta data list.
   metaData <- list(content           = "testo",    # default
                    heading           = "materia",  # default
-                   ID_doc            = "ID_doc",
+                   Id_doc            = "Id_doc",
                    TipoProvvedimento = "tipoProv",
                    AnnoDecisione     = "annoDec",
                    NumeroDecisione   = "numDec",
@@ -43,7 +43,7 @@ dfciv2corpus <- function(dfciv, export = FALSE) {
                    Autorita          = "autorita",
                    Localita          = "localita",
                    Materia           = "materia",
-                   Idmateria         = "Idmateria",
+                   Id_materia        = "Id_materia",
                    Dispositivo       = "dispositivo")
 
   # Ad-hoc reader.

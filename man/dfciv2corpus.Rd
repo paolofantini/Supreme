@@ -12,7 +12,7 @@ dfciv2corpus(dfciv, export = FALSE)
 \item{export}{logical, if \code{TRUE} exports the corpus to txt files. Default is \code{FALSE}.}
 }
 \value{
-a ISC \code{corpus} built from a \code{dfciv} data frame with user defined meta attributes (see \code{\link{xmlciv2df}} function).
+a ISC \code{corpus} built from a \code{dfciv} data frame with user defined meta attributes (see \code{\link{xml2dfciv}} function).
 }
 \description{
 \code{dfciv2corpus} transforms a data frame of class \code{dfciv} to a corpus of Italian Supreme Court
