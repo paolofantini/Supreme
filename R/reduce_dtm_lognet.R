@@ -42,6 +42,9 @@
   #'
 reduce_dtm_lognet <- function(dtm, target, export = FALSE) {
 
+  # Target needs to be integer.
+  target <- as.integer(target)
+
   # dtm as sparseMatrix (from package Matrix) for passing to glmnet() function.
   sdtm <- sparseMatrix(dtm$i, dtm$j, x = dtm$v, dimnames = dtm$dimnames)
 
@@ -65,15 +68,15 @@ reduce_dtm_lognet <- function(dtm, target, export = FALSE) {
   err0.train <- 1 - max(apply(prd == train.target, 2, mean))
 
   # Prediction with best lambda value (as picked by 's' value).
-  pred0 <- predict(glmnetFit0, newx = test.docs, type="class", s = glmnetFit0$lambda[s[[1]]])
+  pred0 <- as.integer(predict(glmnetFit0, newx = test.docs, type="class", s = glmnetFit0$lambda[s[[1]]]))
 
   # Check levels in prediction and truth for confusion matrix.
   if (length(levels(as.factor(pred0))) == length(levels(as.factor(test.target)))) {
     cm0 <- confusionMatrix(table(pred0 = as.factor(pred0), truth = as.factor(test.target)))
-	err0.test <- as.numeric(1 - cm0$overall[1])
+    err0.test <- as.numeric(1 - cm0$overall[1])
   }	else {
-      cm0 <- table(pred0 = as.factor(pred0), truth = as.factor(test.target))
-	  err0.test <- (sum(as.integer(pred0) == testing$target)/length(testing$target))
+    cm0 <- table(pred0 = as.factor(pred0), truth = as.factor(test.target))
+    err0.test <- 1 - (sum(pred0 == test.target)/length(test.target))
     }
 
   # Select columns in sdtm corresponding to non zero beta coefficients in model glmnetFit0 (as picked by 's' value).
@@ -109,12 +112,7 @@ reduce_dtm_lognet <- function(dtm, target, export = FALSE) {
   # Save discarded terms, vocabulary and returned object.
   if (export) {
 
-    # Check dtm class type.
-    if ("tfidf" %in% class(dtm)) {
-      dtm.type <- paste(class(dtm)[3], "_", class(dtm.red)[3], sep = "")
-    } else {
-        dtm.type <- class(dtm.red)[3]
-      }
+    dtm.type <- class(dtm.red)[3]
 
     # Output directory.
     dtm.out.dir <- paste("data/dtm/", dtm.type, sep = "")

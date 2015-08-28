@@ -72,6 +72,9 @@
   #'
 logClass <- function(predictors, target, inTraining, train.glmnet = FALSE) {
 
+  # Target needs to be integer.
+  target <- as.integer(target)
+
   # Data to classify and k.
   data.to.classify <- cbind(predictors, target)
   k <- ncol(predictors)
@@ -99,15 +102,15 @@ logClass <- function(predictors, target, inTraining, train.glmnet = FALSE) {
   err0.train <- 1 - max(apply(prd == training$target, 2, mean))
 
   # Prediction with best lambda value (as picked by 's').
-  pred0 <- predict(glmnetFit0, newx = as.matrix(testing[c(1:k)]), type="class", s = glmnetFit0$lambda[s[[1]]])
+  pred0 <- as.integer(predict(glmnetFit0, newx = as.matrix(testing[c(1:k)]), type="class", s = glmnetFit0$lambda[s[[1]]]))
 
   # Check levels in prediction and truth for confusion matrix.
   if (length(levels(as.factor(pred0))) == length(levels(as.factor(testing$target)))) {
     cm0 <- confusionMatrix(table(pred0 = as.factor(pred0), truth = as.factor(testing$target)))
-	err0.test <- as.numeric(1 - cm0$overall[1])
+    err0.test <- as.numeric(1 - cm0$overall[1])
   }	else {
-      cm0 <- table(pred0 = as.factor(pred0), truth = as.factor(testing$target))
-	  err0.test <- (sum(as.integer(pred0) == testing$target)/length(testing$target))
+    cm0 <- table(pred0 = as.factor(pred0), truth = as.factor(testing$target))
+    err0.test <- 1 - (sum(pred0 == testing$target)/length(testing$target))
     }
 
   #-----------------------------------------------------
@@ -118,15 +121,15 @@ logClass <- function(predictors, target, inTraining, train.glmnet = FALSE) {
 
   err1.train <- min(glmnetFit1$cvm)  # training error
 
-  pred1 <- predict(glmnetFit1, newx = as.matrix(testing[c(1:k)]), type = "class")
+  pred1 <- as.integer(predict(glmnetFit1, newx = as.matrix(testing[c(1:k)]), type = "class"))
 
   # Check levels in prediction and truth for confusion matrix.
   if (length(levels(as.factor(pred1))) == length(levels(as.factor(testing$target)))) {
     cm1 <- confusionMatrix(table(pred1 = as.factor(pred1), truth = as.factor(testing$target)))
-	err1.test <- as.numeric(1 - cm1$overall[1])
+    err1.test <- as.numeric(1 - cm1$overall[1])
   }	else {
-      cm1 <- table(pred1 = as.factor(pred1), truth = as.factor(testing$target))
-	  err1.test <- (sum(as.integer(pred1) == testing$target)/length(testing$target))
+    cm1 <- table(pred1 = as.factor(pred1), truth = as.factor(testing$target))
+    err1.test <- 1 - (sum(pred1 == testing$target)/length(testing$target))
     }
 
   #-------------------------------------------------------
@@ -148,15 +151,15 @@ logClass <- function(predictors, target, inTraining, train.glmnet = FALSE) {
 
     err2.train <- 1 - mean(glmnetFit2$resample$Accuracy)  # training error
 
-    pred2 <- predict(glmnetFit2, newdata = testing)
+    pred2 <- as.integer(predict(glmnetFit2, newdata = testing))
 
-	# Check levels in prediction and truth for confusion matrix.
-    if (length(levels(pred2)) == length(levels(as.factor(testing$target)))) {
-      cm2 <- confusionMatrix(table(pred2, truth = as.factor(testing$target)))
-	  err2.test <- as.numeric(1 - cm2$overall[1])
+    # Check levels in prediction and truth for confusion matrix.
+    if (length(levels(as.factor(pred2))) == length(levels(as.factor(testing$target)))) {
+      cm2 <- confusionMatrix(table(pred2 = as.factor(pred2), truth = as.factor(testing$target)))
+      err2.test <- as.numeric(1 - cm2$overall[1])
     } else {
-        cm2 <- table(pred2, truth = as.factor(testing$target))
-		err2.test <- (sum(as.integer(pred2) == testing$target)/length(testing$target))
+      cm2 <- table(pred2 = as.factor(pred2), truth = as.factor(testing$target))
+      err2.test <- 1 - (sum(pred2 == testing$target)/length(testing$target))
       }
   }
 
