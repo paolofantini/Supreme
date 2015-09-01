@@ -64,8 +64,9 @@ mcLDA <- function(dtm, lda.method = c("VEM", "VEM_fixed", "Gibbs"), k.runs = lis
 
   # In LDA model each dtm row needs to be not zero. Target variable also needs to be updated.
   if (length(zeroWordDocs != 0)) {
-    target <- target[- zeroWordDocs]
-    dtm <- dtm[- zeroWordDocs, ]
+    dtm        <- dtm[- zeroWordDocs, ]
+    class(dtm) <- append(class(dtm), dtm.type)
+    target     <- target[- zeroWordDocs]
   }
 
   #-----------------------------------------------------------------------------------------------------
