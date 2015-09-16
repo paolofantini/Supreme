@@ -1,4 +1,4 @@
-# corpus2dtm(corpus)
+# corpus2dtm(corpus, stopwords)
   #' @title
   #' From ISC corpus to a Document-Term Matrix
   #'
@@ -6,6 +6,7 @@
   #' \code{corpus2dtm} transforms a corpus of decisions from Italian Supreme Court to a document term matrix.
   #'
   #' @param corpus a corpus of decisions from Italian Supreme Court.
+  #' @param stopwords a character vector of stopwords.
   #'
   #' @return \code{dtm} a \emph{hard} document-term matrix with minimum term length 3 and terms appearing at least in 2 documents.
   #'
@@ -23,24 +24,24 @@
   #' library(Supreme)
   #' data("corpus")
   #' data("italianStopWords")  # for removing italian stop words
-  #' dtm <- corpus2dtm(corpus)
+  #' dtm <- corpus2dtm(corpus, italianStopWords)
   #' }
   #'
   #' @import tm slam
   #'
-corpus2dtm <- function(corpus) {
+corpus2dtm <- function(corpus, stopwords) {
 
   # Basic text cleaning.
   dtmCorpus <- corpus
   removePunctuation <- function(x) gsub("(['?\n<U+202F><U+2009>]|[[:punct:]]|[[:space:]]|[[:cntrl:]])+", " ", x)
-  removeItalianStopWords <- function(x) removeWords(x, italianStopWords)
+  removeStopWords   <- function(x) removeWords(x, stopwords)
 
   # List of tm transformations (bottom-up order).
-  funs <- list(content_transformer(stripWhitespace),
-               content_transformer(removeItalianStopWords),
+  funs <- list(content_transformer(tolower),
+               content_transformer(stripWhitespace),
                content_transformer(removeNumbers),
                content_transformer(removePunctuation),
-               content_transformer(tolower))
+               content_transformer(removeStopWords))
   dtmCorpus <- tm_map(dtmCorpus, FUN = tm_reduce, tmFuns = funs)
 
   # dtm: keep only terms with minimum length 3 and appearing at least in 2 documents.

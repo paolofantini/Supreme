@@ -4,10 +4,12 @@
 \alias{corpus2dtm}
 \title{From ISC corpus to a Document-Term Matrix}
 \usage{
-corpus2dtm(corpus)
+corpus2dtm(corpus, stopwords)
 }
 \arguments{
 \item{corpus}{a corpus of decisions from Italian Supreme Court.}
+
+\item{stopwords}{a character vector of stopwords.}
 }
 \value{
 \code{dtm} a \emph{hard} document-term matrix with minimum term length 3 and terms appearing at least in 2 documents.
@@ -27,7 +29,7 @@ Package \pkg{tm version >= 0.6} required.
 library(Supreme)
 data("corpus")
 data("italianStopWords")  # for removing italian stop words
-dtm <- corpus2dtm(corpus)
+dtm <- corpus2dtm(corpus, italianStopWords)
 }
 }
 
