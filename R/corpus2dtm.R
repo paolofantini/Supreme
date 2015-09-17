@@ -37,12 +37,11 @@ corpus2dtm <- function(corpus, stopwords) {
   removeStopWords   <- function(x) removeWords(x, stopwords)
 
   # List of tm transformations (bottom-up order).
-  funs <- list(content_transformer(tolower),
-               content_transformer(stripWhitespace),
-               content_transformer(removeNumbers),
-               content_transformer(removePunctuation),
-               content_transformer(removeStopWords))
-  dtmCorpus <- tm_map(dtmCorpus, FUN = tm_reduce, tmFuns = funs)
+  dtmCorpus <- tm_map(dtmCorpus, content_transformer(tolower))
+  dtmCorpus <- tm_map(dtmCorpus, content_transformer(removeNumbers))
+  dtmCorpus <- tm_map(dtmCorpus, content_transformer(removePunctuation))
+  dtmCorpus <- tm_map(dtmCorpus, content_transformer(removeStopWords))
+  dtmCorpus <- tm_map(dtmCorpus, content_transformer(stripWhitespace))
 
   # dtm: keep only terms with minimum length 3 and appearing at least in 2 documents.
   dtm <- DocumentTermMatrix(dtmCorpus, control = list(wordLengths = c(3, Inf), bounds = list(global = c(2, Inf))))
