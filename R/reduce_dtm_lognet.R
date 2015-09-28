@@ -42,7 +42,7 @@
   #'
 reduce_dtm_lognet <- function(dtm, target, export = FALSE) {
 
-  # Target needs to be integer.
+  # If the response variable is presented as a vector, it will be forced by glmnet() into a factor.
   target <- as.integer(target)
 
   # dtm as sparseMatrix (from package Matrix) for passing to glmnet() function.
@@ -51,11 +51,11 @@ reduce_dtm_lognet <- function(dtm, target, export = FALSE) {
   # Train and test set for using in glmnet() function.
   # Set random seed only for createDataPartition(): glmnet() doesn't use random seed.
   set.seed(2010)
-  inTraining   <- createDataPartition(target, p = 0.75, list = FALSE)  # for balancing the size of target classes in training set
-  train.docs   <- sdtm[as.numeric(inTraining), ]
-  test.docs    <- sdtm[- as.numeric(inTraining), ]
-  train.target <- target[as.numeric(inTraining)]
-  test.target  <- target[- as.numeric(inTraining)]
+  inTraining   <- as.integer(createDataPartition(as.factor(target), p = 0.75, list = FALSE))  # for balancing the size of target classes in training set
+  train.docs   <- sdtm[inTraining, ]
+  test.docs    <- sdtm[-inTraining, ]
+  train.target <- target[inTraining]
+  test.target  <- target[-inTraining]
 
   # Fit lognet model (Method 0): tuning parameters alpha (default = 1) and lambda.
   glmnetFit0 <- glmnet(train.docs, train.target, family = "multinomial")
