@@ -88,8 +88,8 @@ mcLDA <- function(dtm, lda.method = c("VEM", "VEM_fixed", "Gibbs"), k.runs = lis
   ### PARALLEL LOOP ###
 
   # Set random seed only for createDataPartition(): glmnet() in logClass function doesn't use random seed.
-  set.seed(2010)
-  inTraining <- createDataPartition(target, p = 0.75, list = FALSE)  # for balancing the size of target classes in training set
+  set.seed(123)
+  inTraining <- as.integer(createDataPartition(as.factor(target), p = 0.75, list = FALSE))  # for balancing the size of target classes in training set
 
   # Start time.
   ptm0 <- proc.time()
