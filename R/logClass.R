@@ -72,7 +72,7 @@
   #'
 logClass <- function(predictors, target, inTraining, train.glmnet = FALSE) {
 
-  # Target needs to be integer.
+  # If the response variable is presented as a vector, it will be forced by glmnet() into a factor.
   target <- as.integer(target)
 
   # Data to classify and k.
