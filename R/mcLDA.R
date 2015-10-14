@@ -1,54 +1,68 @@
-# mcLDA(dtm, lda.method = c("VEM", "VEM_fixed", "Gibbs"), k.runs = list(from = 2, to = 2, steps = 1), target)
+# mcLDA(dtm, lda.method = c("VEM", "VEM_fixed", "Gibbs"), k.runs = list(from = 2, to = 2, steps = 1), classes,
+#       train.glmnet = FALSE, cv.parallel = FALSE, train.parallel = FALSE)
   #' @title
   #' Multicore parallel runs of LDA models
   #'
   #' @description
-  #' \code{mcLDA} runs multiple parallel LDA models by varying the number of topics \code{k} over a predefined grid of values
-  #' and performs model selection based on logistic classification by calling \code{\link{logClass}} function.
+  #' \code{mcLDA} runs multiple LDA models using parallel \code{foreach} to fit each model.
+  #' The number of topics \code{k} is varied over a predefined grid of values and
+  #' model selection is performed by calling internal \code{\link{compClass}} function.
   #'
   #' @details
-  #' This function runs multiple LDA models and applies internal \code{\link{logClass}} to each model.
-  #' A vector of misclassification error on the test set (\code{e1.test}) is returned and the \emph{best} model
-  #' is selected with minimum misclassification error.
+  #' This function runs multiple LDA models and applies logistic classification
+  #' by internal \code{\link{compClass}} function to each model.
+  #' A vector of misclassification error on the test set (\code{e1.test}) is returned and
+  #' the \emph{best} model is selected with the minimum misclassification error.
   #'
   #' @param dtm a document-term matrix.
   #' @param lda.method character. Approximate posterior inference method.
   #' @param k.runs the grid of \code{k} values.
-  #' @param target factor. The labeling variable for logistic classification.
+  #' @param classes factor. The labeling variable for logistic classification.
+  #' @param train.glmnet logical. If \code{TRUE} also run \emph{Method2} in the internal \code{\link{compClass}} function. Default is \code{FALSE}.
+  #' @param cv.parallel logical. If \code{TRUE} parallel computation is used in \emph{Method1} in \code{\link{compClass}} function with the maximum number of available cores. Default is \code{FALSE}.
+  #' @param train.parallel logical. If \code{TRUE} parallel computation is used in \emph{Method2} in \code{\link{compClass}} with the maximum number of available cores. Default is \code{FALSE}.
   #'
   #' @return a list containing the fitted LDA models and the misclassification errors.
-  #' Model with minimum misclassification error, i.e. the \emph{best} model, is also returned.
+  #' Model with the minimum misclassification error, i.e. the \emph{best} model, is also returned.
   #'
   #' @export
   #'
   #' @note
-  #' By default the \pkg{doParallel} package uses snow-like functionality. The snow-like functionality should work fine on Unix-like systems.
-  #' Output is automatically saved in directory \code{data/ws/output} and a log file is provided in directory \code{log}.
+  #' By default the \pkg{doParallel} package uses snow-like functionality.
+  #' The snow-like functionality should work fine on Unix-like systems.
+  #' Actual version of \code{mcLDA} function is built on Windows system.
+  #' In this system it is needed to pass to each core each used package.
+  #' Output is automatically saved in directory \code{data/ws/output} and
+  #' a log file is provided in directory \code{log}.
   #'
   #' @examples
   #' \dontrun{
   #' library(Supreme)
   #' data("dtm")
   #' data("classes")
-  #' dtm.lognet <- reduce_dtm(dtm, method = "lognet", target = classes)
+  #' dtm.lognet <- reduce_dtm(dtm, method = "lognet", classes = classes)
   #'
-  #' # 4 cores: one model for each core.
-  #' mc.lda.models <- mcLDA(dtm.lognet$reduced, lda.method = "VEM", k.runs = list(from = 10, to = 25, steps = 5), target = classes)
+  #' # 4 cores: fit one model for each core.
+  #' mc.lda.models <- mcLDA(dtm.lognet$reduced, lda.method = "VEM", k.runs = list(from = 10, to = 25, steps = 5), classes = classes)
   #' }
   #'
   #' @import parallel doParallel slam caret topicmodels glmnet
   #'
-mcLDA <- function(dtm, lda.method = c("VEM", "VEM_fixed", "Gibbs"), k.runs = list(from = 2, to = 2, steps = 1), target) {
+mcLDA <- function(dtm, lda.method = c("VEM", "VEM_fixed", "Gibbs"), k.runs = list(from = 2, to = 2, steps = 1), classes,
+                  train.glmnet = FALSE, cv.parallel = FALSE, train.parallel = FALSE) {
 
   # Check input.
   if (!is(dtm, "DocumentTermMatrix"))
     stop("The argument 'dtm' needs to be a DocumentTermMatrix.")
 
-  if(missing(target))
-    stop("Internal function 'logClass' needs to have a 'target' argument.")
+  if(missing(classes))
+    stop("Internal function 'logClass' needs to have a 'classes' argument.")
+
+  # Force classes into a factor.
+  classes <- as.factor(classes)
 
   #--------------------
-  # 0. INIZIALIZATION
+  ## 0. INIZIALIZATION.
   #--------------------
 
   # Set up parallel backend to use the maximum number of available cores.
@@ -56,22 +70,22 @@ mcLDA <- function(dtm, lda.method = c("VEM", "VEM_fixed", "Gibbs"), k.runs = lis
   cl    <- makeCluster(cores)
   registerDoParallel(cl)
 
-  # Get dtm type c("hard", "tfidf", "lognet").
+  # Get dtm type c("raw", "tfidf", "lognet").
   dtm.type <- class(dtm)[3]
 
   # Find zero word docs in dtm.
   zeroWordDocs <- as.vector(which(row_sums(dtm) == 0))
 
-  # In LDA model each dtm row needs to be not zero. Target variable also needs to be updated.
+  # In LDA model each dtm row needs to be not zero; classes variable also needs to be updated.
   if (length(zeroWordDocs != 0)) {
     dtm        <- dtm[- zeroWordDocs, ]
     class(dtm) <- append(class(dtm), c("DocumentTermMatrix", dtm.type))
-    target     <- target[- zeroWordDocs]
+    classes    <- classes[- zeroWordDocs]
   }
 
   #-----------------------------------------------------------------------------------------------------
-  # 1. MULTIPLE LDA MODELS IN PARALLEL
-  # Run multiple LDA models in parallel and apply logClass() to each model to select the best k value.
+  ## 1. MULTIPLE LDA MODELS IN PARALLEL.
+  ## Run multiple LDA models in parallel and apply compClass() to each model to select the best k value.
   #-----------------------------------------------------------------------------------------------------
 
   # Check LDA method.
@@ -87,13 +101,14 @@ mcLDA <- function(dtm, lda.method = c("VEM", "VEM_fixed", "Gibbs"), k.runs = lis
 
   ### PARALLEL LOOP ###
 
-  # Set random seed only for createDataPartition(): glmnet() in logClass function doesn't use random seed.
-  set.seed(123)
-  inTraining <- as.integer(createDataPartition(as.factor(target), p = 0.75, list = FALSE))  # for balancing the size of target classes in training set
+  # Set random seed only for createDataPartition(): glmnet() in compClass function doesn't use random seed.
+  set.seed(123)  # for reproducible inTraining
+  inTraining <- as.integer(createDataPartition(classes, p = 0.75, list = FALSE))  # for balancing the size of target classes in training set
 
   # Start time.
   ptm0 <- proc.time()
 
+  # Supreme package is needed to pass to each core for running the compClass function.
   lda.models <- foreach(k = iter(seq(k.runs$from, k.runs$to, k.runs$steps)), .packages = c("Supreme", "topicmodels", "caret", "glmnet"), .errorhandling = "pass") %dopar% {
 
     # Log file k-iteration.
@@ -108,7 +123,7 @@ mcLDA <- function(dtm, lda.method = c("VEM", "VEM_fixed", "Gibbs"), k.runs = lis
                        Gibbs     = LDA(dtm, k = k, method = "Gibbs", control = list(seed = SEED, burnin = 1000, thin = 100, iter = 1000)))
 
     # Misclassification error.
-    mis.error <- logClass(predictors = as.data.frame(posterior(lda.mod)$topics), target = target, inTraining = inTraining, train.glmnet = FALSE)
+    mis.error <- compClass(posterior(lda.mod)$topics, classes, inTraining, train.glmnet, cv.parallel, train.parallel)
 
     # Results.
     lda.models <- list(mod = lda.mod, mis.error = mis.error)
@@ -134,6 +149,10 @@ mcLDA <- function(dtm, lda.method = c("VEM", "VEM_fixed", "Gibbs"), k.runs = lis
   cat(paste("Application time:", ptm1), file = log.file, append = TRUE, fill = TRUE)
   cat(paste("Garbage collection time:", gc_time), file = log.file, append = TRUE, fill = TRUE)
 
+  #--------------------
+  ## 2. THE BEST MODEL.
+  #--------------------
+
   # Vector of misclassification error.
   miserr1 <- c()
   for(i in 1:length(lda.models))
@@ -151,7 +170,7 @@ mcLDA <- function(dtm, lda.method = c("VEM", "VEM_fixed", "Gibbs"), k.runs = lis
   # List to be returned.
   res <- list(mycall       = match.call(),
               dtm          = dtm,
-              target       = target,
+              classes      = classes,
               zeroWordDocs = zeroWordDocs,
               inTraining   = inTraining,
               lda.models   = lda.models,

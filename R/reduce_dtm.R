@@ -1,4 +1,4 @@
-# reduce_dtm(dtm, method = c("tfidf", "lognet"), q = list(inf = 0.25, sup = 0.75), target = NULL, export = FALSE)
+# reduce_dtm(dtm, method = c("tfidf", "lognet"), q = list(inf = 0.25, sup = 0.75), classes = NULL, export = FALSE)
   #' @title
   #' Reducing the number of columns (terms) of a document-term matrix
   #'
@@ -18,7 +18,7 @@
   #' @param dtm a document-term matrix.
   #' @param method the method for selecting the columns.
   #' @param q a list with \code{inf} and \code{sup} quantiles of tf-idf scores distribution. Default are the first and third quartiles.
-  #' @param target factor. The labeling variable.
+  #' @param classes factor. The labeling variable.
   #' @param export logical. If \code{TRUE} exports the discarded terms, the vocabulary and the returned object to the built-in directory \code{data/dtm}. Default is \code{FALSE}.
   #'
   #' @return
@@ -58,13 +58,13 @@
   #' library(Supreme)
   #' data("dtm")
   #' data("classes")
-  #' dtm.lognet <- reduce_dtm(dtm, method = "lognet", target = classes, export = TRUE)
+  #' dtm.lognet <- reduce_dtm(dtm, method = "lognet", classes = classes, export = TRUE)
   #' }
   #'
 reduce_dtm <- function(dtm,
                        method = c("tfidf", "lognet"),
                        q      = list(inf = 0.25, sup = 0.75),
-                       target = NULL,
+                       classes = NULL,
                        export = FALSE) {
 
   # Check input.
@@ -75,15 +75,14 @@ reduce_dtm <- function(dtm,
   this.call <- match.call()
 
   if (method == "lognet") {
-    if(missing(target))
-      stop("Method 'lognet' needs to have a 'target' argument.")
-    target <- as.factor(target)
+    if(missing(classes))
+      stop("Method 'lognet' needs to have a 'classes' argument.")
   }
 
   # Returned object.
   res <- switch(method,
                 tfidf  = reduce_dtm_tfidf(dtm, q, export),
-                lognet = reduce_dtm_lognet(dtm, target, export))
+                lognet = reduce_dtm_lognet(dtm, classes, export))
 
   res$mycall <- this.call
 

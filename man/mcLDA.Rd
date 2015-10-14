@@ -5,7 +5,8 @@
 \title{Multicore parallel runs of LDA models}
 \usage{
 mcLDA(dtm, lda.method = c("VEM", "VEM_fixed", "Gibbs"), k.runs = list(from =
-  2, to = 2, steps = 1), target)
+  2, to = 2, steps = 1), classes, train.glmnet = FALSE, cv.parallel = FALSE,
+  train.parallel = FALSE)
 }
 \arguments{
 \item{dtm}{a document-term matrix.}
@@ -14,34 +15,46 @@ mcLDA(dtm, lda.method = c("VEM", "VEM_fixed", "Gibbs"), k.runs = list(from =
 
 \item{k.runs}{the grid of \code{k} values.}
 
-\item{target}{factor. The labeling variable for logistic classification.}
+\item{classes}{factor. The labeling variable for logistic classification.}
+
+\item{train.glmnet}{logical. If \code{TRUE} also run \emph{Method2} in the internal \code{\link{compClass}} function. Default is \code{FALSE}.}
+
+\item{cv.parallel}{logical. If \code{TRUE} parallel computation is used in \emph{Method1} in \code{\link{compClass}} function with the maximum number of available cores. Default is \code{FALSE}.}
+
+\item{train.parallel}{logical. If \code{TRUE} parallel computation is used in \emph{Method2} in \code{\link{compClass}} with the maximum number of available cores. Default is \code{FALSE}.}
 }
 \value{
 a list containing the fitted LDA models and the misclassification errors.
-Model with minimum misclassification error, i.e. the \emph{best} model, is also returned.
+Model with the minimum misclassification error, i.e. the \emph{best} model, is also returned.
 }
 \description{
-\code{mcLDA} runs multiple parallel LDA models by varying the number of topics \code{k} over a predefined grid of values
-and performs model selection based on logistic classification by calling \code{\link{logClass}} function.
+\code{mcLDA} runs multiple LDA models using parallel \code{foreach} to fit each model.
+The number of topics \code{k} is varied over a predefined grid of values and
+model selection is performed by calling internal \code{\link{compClass}} function.
 }
 \details{
-This function runs multiple LDA models and applies internal \code{\link{logClass}} to each model.
-A vector of misclassification error on the test set (\code{e1.test}) is returned and the \emph{best} model
-is selected with minimum misclassification error.
+This function runs multiple LDA models and applies logistic classification
+by internal \code{\link{compClass}} function to each model.
+A vector of misclassification error on the test set (\code{e1.test}) is returned and
+the \emph{best} model is selected with the minimum misclassification error.
 }
 \note{
-By default the \pkg{doParallel} package uses snow-like functionality. The snow-like functionality should work fine on Unix-like systems.
-Output is automatically saved in directory \code{data/ws/output} and a log file is provided in directory \code{log}.
+By default the \pkg{doParallel} package uses snow-like functionality.
+The snow-like functionality should work fine on Unix-like systems.
+Actual version of \code{mcLDA} function is built on Windows system.
+In this system it is needed to pass to each core each used package.
+Output is automatically saved in directory \code{data/ws/output} and
+a log file is provided in directory \code{log}.
 }
 \examples{
 \dontrun{
 library(Supreme)
 data("dtm")
 data("classes")
-dtm.lognet <- reduce_dtm(dtm, method = "lognet", target = classes)
+dtm.lognet <- reduce_dtm(dtm, method = "lognet", classes = classes)
 
-# 4 cores: one model for each core.
-mc.lda.models <- mcLDA(dtm.lognet$reduced, lda.method = "VEM", k.runs = list(from = 10, to = 25, steps = 5), target = classes)
+# 4 cores: fit one model for each core.
+mc.lda.models <- mcLDA(dtm.lognet$reduced, lda.method = "VEM", k.runs = list(from = 10, to = 25, steps = 5), classes = classes)
 }
 }
 

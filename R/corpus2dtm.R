@@ -8,12 +8,12 @@
   #' @param corpus a corpus of decisions from Italian Supreme Court.
   #' @param stopwords a character vector of stopwords.
   #'
-  #' @return \code{dtm} a \emph{hard} document-term matrix with minimum term length 3 and terms appearing at least in 2 documents.
+  #' @return \code{dtm} a \emph{raw} document-term matrix with minimum term length 3 and terms appearing at least in 2 documents.
   #'
   #' @export
   #'
   #' @note
-  #' Basic text cleaning steps build a \emph{hard} \code{dtm} by selecting only terms (columns)
+  #' Basic text cleaning steps build a \emph{raw} \code{dtm} by selecting only terms (columns)
   #' corresponding to a suitable vocabulary. Typically, this involves converting tokens to lower-case,
   #' removing punctuation characters, removing numbers, stemming, removing stop-words and selecting terms
   #' with a length above a certain minimum and occurring at least in a minimum number of documents.
@@ -46,8 +46,8 @@ corpus2dtm <- function(corpus, stopwords) {
   # dtm: keep only terms with minimum length 3 and appearing at least in 2 documents.
   dtm <- DocumentTermMatrix(dtmCorpus, control = list(wordLengths = c(3, Inf), bounds = list(global = c(2, Inf))))
 
-  # Append to dtm attribute class "hard".
-  class(dtm) <- append(class(dtm), "hard")
+  # Append to dtm attribute class "raw".
+  class(dtm) <- append(class(dtm), "raw")
 
   return(dtm)
 }

@@ -12,13 +12,13 @@ corpus2dtm(corpus, stopwords)
 \item{stopwords}{a character vector of stopwords.}
 }
 \value{
-\code{dtm} a \emph{hard} document-term matrix with minimum term length 3 and terms appearing at least in 2 documents.
+\code{dtm} a \emph{raw} document-term matrix with minimum term length 3 and terms appearing at least in 2 documents.
 }
 \description{
 \code{corpus2dtm} transforms a corpus of decisions from Italian Supreme Court to a document term matrix.
 }
 \note{
-Basic text cleaning steps build a \emph{hard} \code{dtm} by selecting only terms (columns)
+Basic text cleaning steps build a \emph{raw} \code{dtm} by selecting only terms (columns)
 corresponding to a suitable vocabulary. Typically, this involves converting tokens to lower-case,
 removing punctuation characters, removing numbers, stemming, removing stop-words and selecting terms
 with a length above a certain minimum and occurring at least in a minimum number of documents.

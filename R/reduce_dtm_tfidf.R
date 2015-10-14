@@ -37,14 +37,14 @@ reduce_dtm_tfidf <- function(dtm, q = list(inf = 0.25, sup = 0.75), export = FAL
   # Reduce dtm.
   dtm.red <- dtm[, ((term_tfidf >= thresh$inf) & (term_tfidf <= thresh$sup))]
 
-  # Returned object and attributes class.
+  # Returned object and class attributes.
   attributes(dtm.red)$weighting <- c("term frequency", "tf")
   class(dtm.red) <- append(class(dtm.red), "tfidf")
   term_tfidf.red <- term_tfidf[((term_tfidf >= thresh$inf) & (term_tfidf <= thresh$sup))]
 
   res <- list(reduced = dtm.red, term_tfidf = term_tfidf.red, thresholds = thresh)
 
-  # Save discarded terms, vocabulary and returned object.
+  # Save discarded terms, vocabulary and the returned object.
   if (export) {
 
     # Output directory.

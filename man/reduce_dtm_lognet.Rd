@@ -4,35 +4,31 @@
 \alias{reduce_dtm_lognet}
 \title{Internal Supreme function}
 \usage{
-reduce_dtm_lognet(dtm, target, export = FALSE)
+reduce_dtm_lognet(dtm, classes, export = FALSE)
 }
 \arguments{
 \item{dtm}{a document-term matrix.}
 
-\item{target}{factor. The labeling variable.}
+\item{classes}{factor, the labeling variable.}
 
-\item{export}{logical. If \code{TRUE} exports the discarded terms, the vocabulary and the returned object to the built-in directory \code{data/dtm}. Default is \code{FALSE}.}
+\item{export}{logical. If \code{TRUE} export the discarded terms, the vocabulary and the returned object to the built-in directory \code{data/dtm}. Default is \code{FALSE}.}
 }
 \value{
 a list with the \emph{reduced} \code{dtm} and train and test misclassification errors
-\code{err0.train} and \code{err0.test}.
-Confusion matrix is also returned if levels in \code{prediction} and \code{truth} are not different.
-Otherwise a simple table is returned.
+\code{err0.train} and \code{err0.test}. Confusion matrix is also returned.
 }
 \description{
-\code{reduce_dtm_lognet} selects suitable columns of a \emph{labeled} document-term matrix
-by applying the \code{lognet} method from package \pkg{glmnet}.
-\code{reduce_dtm_lognet} is called by \code{\link{reduce_dtm}} function.
+\code{reduce_dtm_lognet} reduces the number of terms (columns) of a \emph{labeled} document-term matrix.
+\code{reduce_dtm_lognet} is called by the \code{\link{reduce_dtm}} function.
 }
 \details{
-This function applies \code{lognet}, a logistic classification method from package
+This function applies \code{lognet} method, a logistic classification method from package
 \pkg{glmnet}, to a \emph{labeled} document-term matrix.
-Reduction of number of terms is performed by selecting only columns (terms) corresponding
-to \strong{non zero} \emph{beta} coefficients in the optimal fit of \code{lognet} method
-from \code{glmnet()} function in package \pkg{glmnet}.
+Reduction of number of terms is performed by selecting only columns corresponding
+to the \strong{non zero} \emph{beta} coefficients in the optimal fit.
 }
 \note{
-\code{alpha} and \code{lambda} are the tuning parameters of \strong{lognet} method:
+\code{alpha} and \code{lambda} are tuning parameters of the \strong{lognet} method:
 \code{alpha = 1} (default) and the best \code{lambda} value, corresponding to the
 optimal fit, is associated with the minimum training error.
 }

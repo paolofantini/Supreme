@@ -5,7 +5,7 @@
 \title{Reducing the number of columns (terms) of a document-term matrix}
 \usage{
 reduce_dtm(dtm, method = c("tfidf", "lognet"), q = list(inf = 0.25, sup =
-  0.75), target = NULL, export = FALSE)
+  0.75), classes = NULL, export = FALSE)
 }
 \arguments{
 \item{dtm}{a document-term matrix.}
@@ -14,7 +14,7 @@ reduce_dtm(dtm, method = c("tfidf", "lognet"), q = list(inf = 0.25, sup =
 
 \item{q}{a list with \code{inf} and \code{sup} quantiles of tf-idf scores distribution. Default are the first and third quartiles.}
 
-\item{target}{factor. The labeling variable.}
+\item{classes}{factor. The labeling variable.}
 
 \item{export}{logical. If \code{TRUE} exports the discarded terms, the vocabulary and the returned object to the built-in directory \code{data/dtm}. Default is \code{FALSE}.}
 }
@@ -65,7 +65,7 @@ dtm.tfidf <- reduce_dtm(dtm, method = "tfidf", export = TRUE)
 library(Supreme)
 data("dtm")
 data("classes")
-dtm.lognet <- reduce_dtm(dtm, method = "lognet", target = classes, export = TRUE)
+dtm.lognet <- reduce_dtm(dtm, method = "lognet", classes = classes, export = TRUE)
 }
 }
 
