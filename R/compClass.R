@@ -131,7 +131,7 @@ compClass <- function(predictors, classes, inTraining, train.glmnet = FALSE, cv.
 
   # Set up parallel backend for parallel option in cv.glmnet().
   if (cv.parallel) {
-    cores <- detectCores()  # maximum number of available cores
+    cores <- detectCores() - 1  # maximum number of available cores
     cl    <- makeCluster(cores)
     registerDoParallel(cl)
   }

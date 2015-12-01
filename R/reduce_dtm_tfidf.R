@@ -8,7 +8,7 @@
   #' quantiles of tf-idf scores distribution.
   #' \code{reduce_dtm_tfidf} is called by \code{\link{reduce_dtm}} function.
   #'
-  #' @param dtm a document-term matrix.
+  #' @param dtm a document-term matrix in term frequency format.
   #' @param q a list with \code{inf} and \code{sup} quantiles of tf-idf scores distribution. Default are the first and third quartiles.
   #' @param export logical. If \code{TRUE} exports the discarded terms, the vocabulary and the returned object to the built-in directory \code{data/dtm}. Default is \code{FALSE}.
   #'
@@ -38,7 +38,7 @@ reduce_dtm_tfidf <- function(dtm, q = list(inf = 0.25, sup = 0.75), export = FAL
   dtm.red <- dtm[, ((term_tfidf >= thresh$inf) & (term_tfidf <= thresh$sup))]
 
   # Returned object and class attributes.
-  attributes(dtm.red)$weighting <- c("term frequency", "tf")
+  attr(dtm.red, "weighting") <- c("term frequency", "tf")
   class(dtm.red) <- append(class(dtm.red), "tfidf")
   term_tfidf.red <- term_tfidf[((term_tfidf >= thresh$inf) & (term_tfidf <= thresh$sup))]
 

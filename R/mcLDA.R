@@ -56,21 +56,21 @@ mcLDA <- function(dtm, lda.method = c("VEM", "VEM_fixed", "Gibbs"), k.runs = lis
     stop("The argument 'dtm' needs to be a DocumentTermMatrix.")
 
   if(missing(classes))
-    stop("Internal function 'logClass' needs to have a 'classes' argument.")
+    stop("Internal function 'compClass' needs to have a 'classes' argument.")
 
   # Force classes into a factor.
   classes <- as.factor(classes)
 
-  #--------------------
+  #----------------------
   ## 0. INIZIALIZATION.
-  #--------------------
+  #----------------------
 
   # Set up parallel backend to use the maximum number of available cores.
   cores <- detectCores()
   cl    <- makeCluster(cores)
   registerDoParallel(cl)
 
-  # Get dtm type c("raw", "tfidf", "lognet").
+  # Get dtm type c("base", "tfidf", "lognet", "tfidf.lognet").
   dtm.type <- class(dtm)[3]
 
   # Find zero word docs in dtm.
@@ -83,10 +83,10 @@ mcLDA <- function(dtm, lda.method = c("VEM", "VEM_fixed", "Gibbs"), k.runs = lis
     classes    <- classes[- zeroWordDocs]
   }
 
-  #-----------------------------------------------------------------------------------------------------
+  #-------------------------------------------------------------------------------------------------------
   ## 1. MULTIPLE LDA MODELS IN PARALLEL.
   ## Run multiple LDA models in parallel and apply compClass() to each model to select the best k value.
-  #-----------------------------------------------------------------------------------------------------
+  #-------------------------------------------------------------------------------------------------------
 
   # Check LDA method.
   lda.method <- match.arg(lda.method)
@@ -103,7 +103,7 @@ mcLDA <- function(dtm, lda.method = c("VEM", "VEM_fixed", "Gibbs"), k.runs = lis
 
   # Set random seed only for createDataPartition(): glmnet() in compClass function doesn't use random seed.
   set.seed(123)  # for reproducible inTraining
-  inTraining <- as.integer(createDataPartition(classes, p = 0.75, list = FALSE))  # for balancing the size of target classes in training set
+  inTraining <- as.integer(createDataPartition(classes, p = 0.75, list = FALSE))  # for balancing the size of target classes in the training set
 
   # Start time.
   ptm0 <- proc.time()
@@ -149,9 +149,9 @@ mcLDA <- function(dtm, lda.method = c("VEM", "VEM_fixed", "Gibbs"), k.runs = lis
   cat(paste("Application time:", ptm1), file = log.file, append = TRUE, fill = TRUE)
   cat(paste("Garbage collection time:", gc_time), file = log.file, append = TRUE, fill = TRUE)
 
-  #--------------------
+  #----------------------
   ## 2. THE BEST MODEL.
-  #--------------------
+  #----------------------
 
   # Vector of misclassification error.
   miserr1 <- c()

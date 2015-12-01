@@ -1,4 +1,4 @@
-# reduce_dtm_lognet(dtm, classes, export = FALSE)
+# reduce_dtm_lognet(dtm, classes, SEED, c_normalize = TRUE, export = FALSE)
   #' @title
   #' Internal Supreme function
   #'
@@ -9,15 +9,22 @@
   #' @details
   #' This function applies \code{lognet} method, a logistic classification method from package
   #' \pkg{glmnet}, to a \emph{labeled} document-term matrix.
+  #' If \code{c_normalize = TRUE} (default) the input \code{dtm} is passed for cosine normalization
+  #' to the \code{\link{wTfIdf}} function.
   #' Reduction of number of terms is performed by selecting only columns corresponding
   #' to the \strong{non zero} \emph{beta} coefficients in the optimal fit.
   #'
-  #' @param dtm a document-term matrix.
+  #' @param dtm a document-term matrix in term frequency format.
   #' @param classes factor, the labeling variable.
-  #' @param export logical. If \code{TRUE} export the discarded terms, the vocabulary and the returned object to the built-in directory \code{data/dtm}. Default is \code{FALSE}.
+  #' @param SEED integer, the random seed for selecting train and test set.
+  #' @param c_normalize a Boolean value indicating whether the \code{dtm} entries should be (cosine) normalized.
+  #' Default is \code{TRUE}.
+  #' @param export logical. If \code{TRUE} export the discarded terms, the vocabulary and the returned object
+  #' to the built-in directory \code{data/dtm}. Default is \code{FALSE}.
   #'
-  #' @return a list with the \emph{reduced} \code{dtm} and train and test misclassification errors
-  #' \code{err0.train} and \code{err0.test}. Confusion matrix is also returned.
+  #' @return a list with the \emph{reduced} \code{dtm} (in term frequency format)
+  #' and train and test misclassification errors \code{err0.train} and \code{err0.test}.
+  #' Confusion matrix is also returned.
   #'
   #' @export
   #'
@@ -31,21 +38,28 @@
   #' library(Supreme)
   #' data("dtm")
   #' data("classes")
-  #' dtm.lognet <- reduce_dtm_lognet(dtm, classes, TRUE)
+  #' dtm.lognet <- reduce_dtm_lognet(dtm, classes, SEED = 123)
   #' }
   #'
   #' @import Matrix caret glmnet slam
   #'
-reduce_dtm_lognet <- function(dtm, classes, export = FALSE) {
+reduce_dtm_lognet <- function(dtm, classes, SEED, c_normalize = TRUE, export = FALSE) {
+
+  # Store the input dtm (in term frequency format) for later use.
+  dtm_tf <- dtm
 
   # Force classes into a factor.
   classes <- as.factor(classes)
+
+  # Should be the input dtm c_normalized?
+  if (c_normalize)
+    dtm <- wTfIdf(dtm)
 
   # dtm as sparseMatrix (from package Matrix) to be passed to glmnet() function.
   sdtm <- sparseMatrix(dtm$i, dtm$j, x = dtm$v, dimnames = dtm$dimnames)
 
   # Set random seed only for createDataPartition(): glmnet() doesn't use random seed.
-  set.seed(2010)  # for reproducible inTraining
+  set.seed(SEED)  # for reproducible inTraining
   inTraining    <- as.integer(createDataPartition(classes, p = 0.75, list = FALSE))  # for balancing the size of target classes in training set
 
   # Training set and testing set.
@@ -56,7 +70,7 @@ reduce_dtm_lognet <- function(dtm, classes, export = FALSE) {
 
   # Fit lognet model (Method 0): tuning parameters alpha (default = 1) and lambda.
   glmnetFit0 <- glmnet(train.docs, train.classes, family = "multinomial")
-  pred       <- predict(glmnetFit0, newx = train.docs, type="class")  # pred ...to choose the best lambda value
+  pred       <- predict(glmnetFit0, newx = train.docs, type = "class")  # pred ...to choose the best lambda value
 
   # Choose lambda value corresponding to the minimum training error (the best lambda value).
   s <- which.max(apply(pred == train.classes, 2, mean))
@@ -65,7 +79,7 @@ reduce_dtm_lognet <- function(dtm, classes, export = FALSE) {
   err0.train <- 1 - max(apply(pred == train.classes, 2, mean))
 
   # Prediction with the best lambda value (as picked by 's' value).
-  pred0 <- as.integer(predict(glmnetFit0, newx = test.docs, type="class", s = glmnetFit0$lambda[s[[1]]]))  # as.integer for ordered levels in cmo
+  pred0 <- as.integer(predict(glmnetFit0, newx = test.docs, type = "class", s = glmnetFit0$lambda[s[[1]]]))  # as.integer for ordered levels in cmo
 
   # Check levels in prediction and truth for confusion matrix.
   if (length(levels(as.factor(pred0))) == length(levels(test.classes))) {
@@ -80,7 +94,7 @@ reduce_dtm_lognet <- function(dtm, classes, export = FALSE) {
   nzbc <- list()
   num.classes <- length(levels(classes))
 
-  for(i in 1:num.classes) {
+  for (i in 1:num.classes) {
     bet              <- glmnetFit0$beta[[i]]
     nzbc[[i]]        <- which(bet[, s[[1]]] != 0)
     names(nzbc[[i]]) <- NULL
@@ -94,14 +108,28 @@ reduce_dtm_lognet <- function(dtm, classes, export = FALSE) {
   # dtm.red as simple_triplet_matrix (from package slam) to be passed to LDA() function (package topicmodels).
   dtm.red <- as.simple_triplet_matrix(sdtm.red)
 
-  # Append to dtm.red suitable class attributes.
-  if ("tfidf" %in% class(dtm)) {
-    class(dtm.red) <- append(class(dtm.red), c("DocumentTermMatrix", "tfidf_lognet"))
-  } else {
-      class(dtm.red) <- append(class(dtm.red), c("DocumentTermMatrix", "lognet"))
-    }
+  # Output dtm.red.
+  if (c_normalize) {
 
-  attributes(dtm.red)$weighting <- c("term frequency", "tf")
+    # Select from stored dtm_tf only the columns corresponding to terms in c_normalized dtm.red.
+    dtm.red <- dtm_tf[, dtm.red$dimnames$Terms]
+
+    # Append to dtm.red suitable class attributes.
+    if ("tfidf" %in% class(dtm_tf))
+      class(dtm.red) <- append(class(dtm.red), "tfidf_lognet")
+    else
+      class(dtm.red) <- append(class(dtm.red), "lognet")
+
+  } else {
+
+      # Idem.
+      if ("tfidf" %in% class(dtm_tf))
+        class(dtm.red) <- c("DocumentTermMatrix", "simple_triplet_matrix", "tfidf_lognet")
+      else
+        class(dtm.red) <- c("DocumentTermMatrix", "simple_triplet_matrix", "lognet")
+
+      attr(dtm.red, "weighting") <- c("term frequency", "tf")
+    }
 
   # Returned object.
   res <- list(reduced = dtm.red, cm0 = cm0, err0.train = err0.train, err0.test = err0.test)

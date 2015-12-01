@@ -57,11 +57,14 @@ xml2dfciv <- function(path) {
   xml.file <- xmlToList(xml.file)
   xml.file <- xml.file[names(xml.file) == "snintegrale"]
 
+  # Keep only the final decisions (S).
+  xml.file <- xml.file[sapply(xml.file, function(x) x$.attrs["tipoprov"] == "S")]
+
   # Extract the document attributes and build the dataframe dfciv.
   FUN <- function(x) {
 
-    # Event 1: empty documents with empty attribute 'dis' in the document.
-    if(is.null(x$dis))
+    # Event 1: empty documents (with empty attribute 'dis' in the document).
+    if (is.null(x$dis))
     {
       tipoProv     <- NA
       annoDec      <- NA
@@ -89,7 +92,7 @@ xml2dfciv <- function(path) {
         dispositivo <- x$dis
 
         # Informations about the case filing.
-        if(is.list(x$sic))  # event 1: 'list' of document attributes
+        if (is.list(x$sic))  # event 1: 'list' of document attributes
         {
           annoNrgSic   <- x$sic$.attrs["anno_nrg"]
           nrgSic       <- x$sic$.attrs["nrg"]
@@ -99,7 +102,7 @@ xml2dfciv <- function(path) {
           localita     <- x$sic$.attrs["localita"]
           materia      <- x$sic$.attrs["materia"]
 
-        } else {            # event 2: no 'list' of document attributes
+        } else {             # event 2: no 'list' of document attributes
 
           annoNrgSic   <- x$sic["anno_nrg"]
           nrgSic       <- x$sic["nrg"]
@@ -118,11 +121,8 @@ xml2dfciv <- function(path) {
   # Apply FUN to each document.
   dfciv <- lapply(xml.file, FUN)
 
-  # Build data frame dfciv...
+  # Build the data frame dfciv.
   dfciv <- as.data.frame(rbindlist(dfciv))  # rbindlist from pkg data.table
-
-  # ...and keep only the final decisions.
-  dfciv <- subset(dfciv, tipoProv == "S")
 
   # Transform the document attribute 'materia' to factor attribute.
   dfciv$materia <- as.factor(sub("*", "", dfciv$materia, fixed = T))  # character * in 'materia' is deleted

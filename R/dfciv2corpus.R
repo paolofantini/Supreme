@@ -24,7 +24,7 @@
   #'
 dfciv2corpus <- function(dfciv, export = FALSE) {
 
-  # Check input.
+  # Check the input data.
   if (!is(dfciv, "dfciv"))
     stop("The argument 'dfciv' needs to be a data frame of class 'dfciv'.")
 

@@ -7,7 +7,7 @@
 reduce_dtm_tfidf(dtm, q = list(inf = 0.25, sup = 0.75), export = FALSE)
 }
 \arguments{
-\item{dtm}{a document-term matrix.}
+\item{dtm}{a document-term matrix in term frequency format.}
 
 \item{q}{a list with \code{inf} and \code{sup} quantiles of tf-idf scores distribution. Default are the first and third quartiles.}
 

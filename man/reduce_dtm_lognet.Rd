@@ -4,18 +4,25 @@
 \alias{reduce_dtm_lognet}
 \title{Internal Supreme function}
 \usage{
-reduce_dtm_lognet(dtm, classes, export = FALSE)
+reduce_dtm_lognet(dtm, classes, SEED, c_normalize = TRUE, export = FALSE)
 }
 \arguments{
-\item{dtm}{a document-term matrix.}
+\item{dtm}{a document-term matrix in term frequency format.}
 
 \item{classes}{factor, the labeling variable.}
 
-\item{export}{logical. If \code{TRUE} export the discarded terms, the vocabulary and the returned object to the built-in directory \code{data/dtm}. Default is \code{FALSE}.}
+\item{SEED}{integer, the random seed for selecting train and test set.}
+
+\item{c_normalize}{a Boolean value indicating whether the \code{dtm} entries should be (cosine) normalized.
+Default is \code{TRUE}.}
+
+\item{export}{logical. If \code{TRUE} export the discarded terms, the vocabulary and the returned object
+to the built-in directory \code{data/dtm}. Default is \code{FALSE}.}
 }
 \value{
-a list with the \emph{reduced} \code{dtm} and train and test misclassification errors
-\code{err0.train} and \code{err0.test}. Confusion matrix is also returned.
+a list with the \emph{reduced} \code{dtm} (in term frequency format)
+and train and test misclassification errors \code{err0.train} and \code{err0.test}.
+Confusion matrix is also returned.
 }
 \description{
 \code{reduce_dtm_lognet} reduces the number of terms (columns) of a \emph{labeled} document-term matrix.
@@ -24,6 +31,8 @@ a list with the \emph{reduced} \code{dtm} and train and test misclassification e
 \details{
 This function applies \code{lognet} method, a logistic classification method from package
 \pkg{glmnet}, to a \emph{labeled} document-term matrix.
+If \code{c_normalize = TRUE} (default) the input \code{dtm} is passed for cosine normalization
+to the \code{\link{wTfIdf}} function.
 Reduction of number of terms is performed by selecting only columns corresponding
 to the \strong{non zero} \emph{beta} coefficients in the optimal fit.
 }
@@ -37,7 +46,7 @@ optimal fit, is associated with the minimum training error.
 library(Supreme)
 data("dtm")
 data("classes")
-dtm.lognet <- reduce_dtm_lognet(dtm, classes, TRUE)
+dtm.lognet <- reduce_dtm_lognet(dtm, classes, SEED = 123)
 }
 }
 
